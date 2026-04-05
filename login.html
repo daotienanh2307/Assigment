@@ -774,13 +774,13 @@
                             window.location.href = 'index.html';
                         }, 1500);
                     } else {
-                        // For demo, allow any login
-                        const demoUser = {
-                            id: Date.now(),
-                            fullName: email.split('@')[0],
-                            email: email,
-                            phone: ''
-                        };
+                        // 2. Nếu sai tài khoản: Hiển thị lỗi và mở lại nút bấm
+                           showToast('Email hoặc mật khẩu không chính xác!', 'error');
+    
+                        // Quan trọng: Trả lại trạng thái nút để người dùng nhập lại
+                           loginBtn.disabled = false;
+                           loginBtn.innerHTML = 'Sign In';
+}
                         localStorage.setItem('techhub_user', JSON.stringify(demoUser));
                         
                         showToast('Welcome back! Login successful.', 'success');
