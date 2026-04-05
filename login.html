@@ -637,215 +637,154 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <script>
-        // Initialize cart from localStorage
-        let cart = JSON.parse(localStorage.getItem('techhub_cart')) || [];
+<script>
+    // 1. Khởi tạo giỏ hàng từ localStorage
+    let cart = JSON.parse(localStorage.getItem('techhub_cart')) || [];
 
-        // Update Cart Count
-        function updateCartCount() {
-            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-            document.getElementById('cartCount').textContent = count;
+    // 2. Cập nhật số lượng hiển thị trên icon giỏ hàng
+    function updateCartCount() {
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const cartCountEl = document.getElementById('cartCount');
+        if (cartCountEl) cartCountEl.textContent = count;
+    }
+
+    // 3. Khai báo các phần tử Form
+    const loginForm = document.getElementById('loginForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const emailIcon = document.getElementById('emailIcon');
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // 4. Kiểm tra dữ liệu thời gian thực (Real-time validation)
+    emailInput.addEventListener('input', validateEmail);
+    passwordInput.addEventListener('input', validatePassword);
+
+    function validateEmail() {
+        const email = emailInput.value.trim();
+        if (email === '') {
+            showError(emailInput, emailError, emailIcon, 'Vui lòng nhập email');
+            return false;
+        } else if (!emailRegex.test(email)) {
+            showError(emailInput, emailError, emailIcon, 'Email không đúng định dạng');
+            return false;
+        } else {
+            showSuccess(emailInput, emailError, emailIcon);
+            return true;
         }
+    }
 
-        // Form Validation
-        const loginForm = document.getElementById('loginForm');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const emailError = document.getElementById('emailError');
-        const passwordError = document.getElementById('passwordError');
-        const emailIcon = document.getElementById('emailIcon');
+    function validatePassword() {
+        const password = passwordInput.value;
+        if (password === '') {
+            showError(passwordInput, passwordError, null, 'Vui lòng nhập mật khẩu');
+            return false;
+        } else if (password.length < 6) {
+            showError(passwordInput, passwordError, null, 'Mật khẩu phải có ít nhất 6 ký tự');
+            return false;
+        } else {
+            showSuccess(passwordInput, passwordError, null);
+            return true;
+        }
+    }
 
-        // Email validation regex
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    function showError(input, errorElement, iconElement, message) {
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+        errorElement.textContent = message;
+        errorElement.classList.add('show');
+        if (iconElement) iconElement.className = 'bi bi-x-circle-fill input-icon invalid';
+    }
 
-        // Real-time validation
-        emailInput.addEventListener('input', validateEmail);
-        emailInput.addEventListener('blur', validateEmail);
-        passwordInput.addEventListener('input', validatePassword);
-        passwordInput.addEventListener('blur', validatePassword);
+    function showSuccess(input, errorElement, iconElement) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        errorElement.classList.remove('show');
+        if (iconElement) iconElement.className = 'bi bi-check-circle-fill input-icon valid';
+    }
 
-        function validateEmail() {
+    // 5. Ẩn/Hiện mật khẩu
+    function togglePassword() {
+        const toggle = document.getElementById('togglePassword');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggle.classList.replace('bi-eye-slash', 'bi-eye');
+        } else {
+            passwordInput.type = 'password';
+            toggle.classList.replace('bi-eye', 'bi-eye-slash');
+        }
+    }
+
+    // 6. Xử lý khi nhấn nút Đăng nhập
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const isEmailValid = validateEmail();
+        const isPasswordValid = validatePassword();
+        
+        if (isEmailValid && isPasswordValid) {
             const email = emailInput.value.trim();
-            
-            if (email === '') {
-                showError(emailInput, emailError, emailIcon, 'Email is required');
-                return false;
-            } else if (!emailRegex.test(email)) {
-                showError(emailInput, emailError, emailIcon, 'Please enter a valid email address');
-                return false;
-            } else {
-                showSuccess(emailInput, emailError, emailIcon);
-                return true;
-            }
-        }
-
-        function validatePassword() {
             const password = passwordInput.value;
+            const loginBtn = document.getElementById('loginBtn');
             
-            if (password === '') {
-                passwordError.textContent = 'Password is required';
-                passwordError.classList.add('show');
-                passwordInput.classList.add('is-invalid');
-                passwordInput.classList.remove('is-valid');
-                return false;
-            } else if (password.length < 6) {
-                passwordError.textContent = 'Password must be at least 6 characters';
-                passwordError.classList.add('show');
-                passwordInput.classList.add('is-invalid');
-                passwordInput.classList.remove('is-valid');
-                return false;
-            } else {
-                passwordError.classList.remove('show');
-                passwordInput.classList.remove('is-invalid');
-                passwordInput.classList.add('is-valid');
-                return true;
-            }
-        }
-
-        function showError(input, errorElement, iconElement, message) {
-            input.classList.add('is-invalid');
-            input.classList.remove('is-valid');
-            errorElement.textContent = message;
-            errorElement.classList.add('show');
-            if (iconElement) {
-                iconElement.className = 'bi bi-x-circle-fill input-icon invalid';
-            }
-        }
-
-        function showSuccess(input, errorElement, iconElement) {
-            input.classList.remove('is-invalid');
-            input.classList.add('is-valid');
-            errorElement.classList.remove('show');
-            if (iconElement) {
-                iconElement.className = 'bi bi-check-circle-fill input-icon valid';
-            }
-        }
-
-        // Toggle Password Visibility
-        function togglePassword() {
-            const toggle = document.getElementById('togglePassword');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggle.classList.remove('bi-eye-slash');
-                toggle.classList.add('bi-eye');
-            } else {
-                passwordInput.type = 'password';
-                toggle.classList.remove('bi-eye');
-                toggle.classList.add('bi-eye-slash');
-            }
-        }
-
-        // Form Submit
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const isEmailValid = validateEmail();
-            const isPasswordValid = validatePassword();
-            
-            if (isEmailValid && isPasswordValid) {
-                const email = emailInput.value.trim();
-                const password = passwordInput.value;
-                const loginBtn = document.getElementById('loginBtn');
-                
-                // Show loading
-                loginBtn.disabled = true;
-                loginBtn.innerHTML = '<span class="spinner"></span> Signing In...';
-                
-                // Simulate API call
-                setTimeout(() => {
-                    // Check if user exists in localStorage (mock database)
-                    const users = JSON.parse(localStorage.getItem('techhub_users')) || [];
-                    const user = users.find(u => u.email === email && u.password === password);
-                    
-                    if (user) {
-                        // Save current user session
-                        const sessionUser = {
-                            id: user.id,
-                            fullName: user.fullName,
-                            email: user.email,
-                            phone: user.phone,
-                            avatar: user.avatar || null
-                        };
-                        localStorage.setItem('techhub_user', JSON.stringify(sessionUser));
-                        
-                        showToast('Login successful! Redirecting...', 'success');
-                        
-                        setTimeout(() => {
-                            window.location.href = 'index.html';
-                        }, 1500);
-                    } else {
-                        // 2. Nếu sai tài khoản: Hiển thị lỗi và mở lại nút bấm
-                           showToast('Email hoặc mật khẩu không chính xác!', 'error');
-    
-                        // Quan trọng: Trả lại trạng thái nút để người dùng nhập lại
-                           loginBtn.disabled = false;
-                           loginBtn.innerHTML = 'Sign In';
-}
-                        localStorage.setItem('techhub_user', JSON.stringify(demoUser));
-                        
-                        showToast('Welcome back! Login successful.', 'success');
-                        
-                        setTimeout(() => {
-                            window.location.href = 'index.html';
-                        }, 1500);
-                    }
-                    
-                    loginBtn.disabled = false;
-                    loginBtn.innerHTML = 'Sign In';
-                }, 1500);
-            }
-        });
-
-        // Social Login
-        function socialLogin(provider) {
-            showToast(`${provider.charAt(0).toUpperCase() + provider.slice(1)} login coming soon!`, 'error');
-        }
-
-        // Forgot Password
-        function forotPassword(e) {
-            e.preventDefault();
-            showToast('Password reset link sent to your email!', 'success');
-        }
-
-        // Show Toast Notification
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `custom-toast ${type}`;
-            toast.innerHTML = `
-                <div class="toast-icon ${type}">
-                    <i class="bi ${type === 'success' ? 'bi-check-lg' : 'bi-exclamation-lg'}"></i>
-                </div>
-                <div>
-                    <strong>${type === 'success' ? 'Success!' : 'Error!'}</strong><br>
-                    ${message}
-                </div>
-            `;
-            container.appendChild(toast);
+            // Hiển thị trạng thái đang xử lý
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="spinner"></span> Đang đăng nhập...';
             
             setTimeout(() => {
-                toast.style.animation = 'slideIn 0.3s ease reverse';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+                // Lấy danh sách người dùng đã đăng ký từ localStorage
+                const users = JSON.parse(localStorage.getItem('techhub_users')) || [];
+                const user = users.find(u => u.email === email && u.password === password);
+                
+                if (user) {
+                    // Lưu thông tin phiên đăng nhập
+                    const sessionUser = {
+                        id: user.id,
+                        fullName: user.fullName,
+                        email: user.email,
+                        phone: user.phone
+                    };
+                    localStorage.setItem('techhub_user', JSON.stringify(sessionUser));
+                    showToast('Đăng nhập thành công! Đang chuyển hướng...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                } else {
+                    showToast('Email hoặc mật khẩu không chính xác!', 'error');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Sign In';
+                }
+            }, 1500);
         }
+    });
 
-        // Check if already logged in
-        function checkAuthStatus() {
-            const currentUser = JSON.parse(localStorage.getItem('techhub_user'));
-            if (currentUser) {
-                showToast('You are already logged in!', 'success');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
-            }
-        }
+    // 7. Hiển thị thông báo Toast
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `custom-toast ${type}`;
+        toast.innerHTML = `
+            <div class="toast-icon ${type}">
+                <i class="bi ${type === 'success' ? 'bi-check-lg' : 'bi-exclamation-lg'}"></i>
+            </div>
+            <div>
+                <strong>${type === 'success' ? 'Thành công!' : 'Lỗi!'}</strong><br>
+                ${message}
+            </div>
+        `;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.animation = 'slideIn 0.3s ease reverse';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            updateCartCount();
-            // Uncomment to redirect if already logged in
-            // checkAuthStatus();
-        });
-    </script>
+    document.addEventListener('DOMContentLoaded', () => {
+        updateCartCount();
+    });
+</script>
 </body>
 </html>
